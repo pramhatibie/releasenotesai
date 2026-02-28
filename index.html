@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReleaseNotes.ai — Turn git commits into release notes in seconds</title>
+  <meta name="description" content="Paste your git commits. Get beautiful, polished release notes in under 1 second. Free. Powered by Groq AI."/>
+  <meta property="og:title" content="ReleaseNotes.ai — Git commits → Release notes in 1 second"/>
+  <meta property="og:description" content="Free AI tool. Paste messy commits, get polished GitHub release notes instantly."/>
+  <meta property="og:type" content="website"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080c14; }
+    @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)} }
+    .fu { animation: fadeUp 0.35s ease forwards; }
+    textarea:focus, input:focus, select:focus {
+      border-color: rgba(241,196,15,0.5) !important;
+      box-shadow: 0 0 0 3px rgba(241,196,15,0.07) !important;
+      outline: none;
+    }
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:#0a0e1a}
+    ::-webkit-scrollbar-thumb{background:#2d3748;border-radius:3px}
+    select option{background:#0d1221}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { useState } = React;
+
+  const MODELS = [
+    { id: "llama-3.3-70b-versatile",               label: "Llama 3.3 70B — best quality ⭐" },
+    { id: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Llama 4 Scout — faster" },
+    { id: "llama-3.1-8b-instant",                  label: "Llama 3.1 8B — fastest" },
+  ];
+
+  const FORMATS = [
+    { id: "github",   icon: "⬡", label: "GitHub Release",  desc: "Markdown for GitHub Releases" },
+    { id: "npm",      icon: "◈", label: "npm CHANGELOG",   desc: "Keep a Changelog format" },
+    { id: "customer", icon: "◎", label: "Customer-Facing", desc: "Friendly product announcement" },
+    { id: "slack",    icon: "◷", label: "Slack / Teams",   desc: "Short internal update" },
+  ];
+
+  const PROMPTS = {
+    github: `You are a senior technical writer. Transform the provided git commits into polished GitHub Release Notes in Markdown.
+- Group under these headings (only if applicable): ## 🎉 New Features, ## 🐛 Bug Fixes, ## ⚡ Performance, ## 🔒 Security, ## 💥 Breaking Changes, ## 🔧 Maintenance
+- Bullet points starting with strong verbs (Add, Fix, Improve, Remove, Update). One clear sentence each.
+- Remove jargon, ticket numbers, dev-speak. Start with a one-sentence release summary.
+- End with: **Full Changelog:** \`vPREV...vNEXT\`
+- Output ONLY the markdown.`,
+    npm: `You are a technical writer. Transform commits into a CHANGELOG.md entry following Keep a Changelog format.
+- Start: ## [Unreleased] - YYYY-MM-DD
+- Subsections only if applicable: ### Added, ### Changed, ### Deprecated, ### Removed, ### Fixed, ### Security
+- Clear past-tense bullets. No emojis, no ticket numbers.
+- Output ONLY the markdown.`,
+    customer: `You are a product marketer. Transform commits into a friendly non-technical product update.
+- 2-3 short paragraphs. Focus on user benefits. Warm language ("you can now...", "we made it easier to...").
+- 2-3 natural emojis. Punchy headline like "What's New in v2.1 ✨"
+- End with "As always, thanks for using [Product]! 💙"
+- Output ONLY the announcement text.`,
+    slack: `You are a developer writing a Slack/Teams internal release ping.
+- Start: *🚀 Release: vX.X.X is live!*
+- 4-7 bullets. Mix emojis and plain language.
+- End: "Full details in the release notes 👆"
+- Output ONLY the Slack message.`,
+  };
+
+  const EXAMPLE = `feat: add dark mode toggle to settings panel
+fix: resolve infinite loop when user has no projects
+perf: reduce initial bundle size by 40% via code splitting
+feat: implement AI-powered search with semantic matching
+fix: broken avatar upload on mobile Safari
+security: patch XSS vulnerability in comment renderer
+feat: add CSV export for analytics dashboard
+fix: email notifications not sending for EU users
+chore: upgrade dependencies to latest stable versions
+feat: onboarding flow now supports team invites
+fix: race condition in real-time sync causing data loss`;
+
+  function MD({ text }) {
+    return React.createElement("div", { style: { lineHeight: "1.8" } },
+      text.split("\n").map((line, i) => {
+        if (line.startsWith("## "))  return React.createElement("h2", { key: i, style: { color: "#f1c40f", fontSize: "14px", fontFamily: "JetBrains Mono,monospace", margin: "20px 0 8px", borderBottom: "1px solid #1e2a3a", paddingBottom: "5px" } }, line.slice(3));
+        if (line.startsWith("### ")) return React.createElement("h3", { key: i, style: { color: "#94a3b8", fontSize: "10px", fontFamily: "JetBrains Mono,monospace", margin: "14px 0 6px", letterSpacing: "1.5px", textTransform: "uppercase" } }, line.slice(4));
+        if (line.startsWith("# "))  return React.createElement("h1", { key: i, style: { color: "#f8fafc", fontSize: "18px", fontWeight: "700", margin: "0 0 14px", fontFamily: "Syne,sans-serif" } }, line.slice(2));
+        if (/^[-*] /.test(line))   return React.createElement("div", { key: i, style: { display: "flex", gap: "8px", margin: "5px 0" } }, React.createElement("span", { style: { color: "#f1c40f", flexShrink: 0 } }, "▸"), React.createElement("span", { style: { fontSize: "13px", color: "#cbd5e1" } }, line.slice(2)));
+        if (!line.trim())           return React.createElement("div", { key: i, style: { height: "8px" } });
+        return React.createElement("p", { key: i, style: { margin: "4px 0", fontSize: "13px", color: "#cbd5e1" } }, line);
+      })
+    );
+  }
+
+  function CopyBtn({ text, label }) {
+    const [ok, setOk] = useState(false);
+    const copy = () => {
+      const fb = () => { const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t); };
+      navigator.clipboard ? navigator.clipboard.writeText(text).catch(fb) : fb();
+      setOk(true); setTimeout(() => setOk(false), 2000);
+    };
+    return React.createElement("button", {
+      onClick: copy,
+      style: { background: ok?"#1a4a2e":"#111827", color: ok?"#4ade80":"#94a3b8", border:`1px solid ${ok?"#4ade80":"#2d3748"}`, borderRadius:"6px", padding:"7px 13px", fontSize:"11.5px", cursor:"pointer", fontFamily:"JetBrains Mono,monospace", transition:"all 0.2s", whiteSpace:"nowrap" }
+    }, ok ? "✓ Copied!" : label);
+  }
+
+  function App() {
+    const [commits, setCommits] = useState("");
+    const [version, setVersion] = useState("v1.0.0");
+    const [format,  setFormat]  = useState("github");
+    const [model,   setModel]   = useState("llama-3.3-70b-versatile");
+    const [output,  setOutput]  = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error,   setError]   = useState("");
+    const [elapsed, setElapsed] = useState(null);
+    const [step,    setStep]    = useState(1);
+
+    async function generate() {
+      if (!commits.trim()) { setError("Paste your git commits first."); return; }
+      setError(""); setLoading(true); setOutput("");
+      const t0 = Date.now();
+      try {
+        const payload = {
+          model,
+          messages: [
+            { role: "system", content: PROMPTS[format] },
+            { role: "user",   content: `Version: ${version}\n\nGit commits:\n${commits}\n\nGenerate now.` },
+          ],
+        };
+
+        const res = await fetch("/.netlify/functions/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        // Read as text first — guards against empty body or HTML error pages
+        const raw = await res.text();
+        if (!raw.trim()) throw new Error("Empty response from server. Check that GROQ_API_KEY is set in Netlify → Site Settings → Environment Variables.");
+        if (raw.trim().startsWith("<")) throw new Error("Function not found. Make sure you deployed the full folder (index.html + netlify.toml + netlify/functions/generate.js), not just index.html.");
+
+        let data;
+        try { data = JSON.parse(raw); }
+        catch { throw new Error("Unexpected server response. Please try again."); }
+
+        if (res.status === 429) throw new Error(data.error || "Daily limit reached.");
+        if (!res.ok)            throw new Error(data.error || `Server error ${res.status}`);
+
+        const text = data.choices?.[0]?.message?.content;
+        if (!text) throw new Error("No output returned. Try again.");
+
+        setElapsed(Date.now() - t0);
+        setOutput(text);
+        setStep(2);
+      } catch(e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    const reset = () => { setStep(1); setOutput(""); setError(""); setElapsed(null); };
+    const credit = "\n\n---\n*Generated with [ReleaseNotes.ai](https://releasenotesai.netlify.app)*";
+    const tweet  = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(`Turned messy git commits into polished release notes in ${elapsed?(elapsed/1000).toFixed(1):"~1"}s ⚡\n\nFree: https://releasenotesai.netlify.app`);
+
+    const card  = { background:"rgba(12,17,30,0.88)", border:"1px solid rgba(241,196,15,0.1)", borderRadius:"14px", padding:"24px", marginBottom:"14px", backdropFilter:"blur(8px)" };
+    const lbl   = { fontSize:"10px", fontFamily:"JetBrains Mono,monospace", color:"#64748b", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"8px", display:"block" };
+    const inp   = { width:"100%", background:"#0a0e1a", border:"1px solid #1e2a3a", borderRadius:"8px", color:"#e2e8f0", fontFamily:"JetBrains Mono,monospace", fontSize:"13px", padding:"11px 14px", outline:"none" };
+    const ghost = { background:"none", border:"1px solid #1e2a3a", borderRadius:"6px", color:"#64748b", fontSize:"11px", cursor:"pointer", padding:"5px 10px", fontFamily:"JetBrains Mono,monospace" };
+
+    return React.createElement("div", { style:{ minHeight:"100vh", background:"#080c14", color:"#e2e8f0", fontFamily:"Syne,sans-serif" } },
+      // Grid bg
+      React.createElement("div", { style:{ position:"fixed", inset:0, backgroundImage:"linear-gradient(rgba(241,196,15,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(241,196,15,0.03) 1px,transparent 1px)", backgroundSize:"40px 40px", pointerEvents:"none", zIndex:0 } }),
+      React.createElement("div", { style:{ position:"fixed", top:"-200px", left:"50%", transform:"translateX(-50%)", width:"700px", height:"500px", background:"radial-gradient(ellipse,rgba(241,196,15,0.06) 0%,transparent 70%)", pointerEvents:"none", zIndex:0 } }),
+
+      React.createElement("div", { style:{ position:"relative", zIndex:1, maxWidth:"760px", margin:"0 auto", padding:"40px 20px 80px" } },
+
+        // ── HEADER ──────────────────────────────────────────────────────────
+        React.createElement("div", { className:"fu", style:{ textAlign:"center", marginBottom:"44px" } },
+          React.createElement("div", { style:{ display:"inline-block", background:"rgba(241,196,15,0.07)", border:"1px solid rgba(241,196,15,0.16)", borderRadius:"20px", padding:"4px 14px", fontSize:"11px", color:"#f1c40f", fontFamily:"JetBrains Mono,monospace", letterSpacing:"0.5px", marginBottom:"16px" } }, "⚡ Powered by Groq · Sub-second inference · Free"),
+          React.createElement("div", { style:{ display:"flex", alignItems:"center", justifyContent:"center", gap:"10px", marginBottom:"12px" } },
+            React.createElement("div", { style:{ width:"36px", height:"36px", background:"linear-gradient(135deg,#f1c40f,#f39c12)", borderRadius:"9px", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:"900", fontSize:"17px", boxShadow:"0 0 24px rgba(241,196,15,0.3)", color:"#000" } }, "R"),
+            React.createElement("span", { style:{ fontSize:"20px", fontWeight:"700", fontFamily:"JetBrains Mono,monospace", color:"#f8fafc", letterSpacing:"-0.5px" } }, "ReleaseNotes.ai")
+          ),
+          React.createElement("p", { style:{ fontSize:"12px", color:"#475569", fontFamily:"JetBrains Mono,monospace", letterSpacing:"1.5px" } }, "PASTE COMMITS → BEAUTIFUL RELEASE NOTES → SHIP")
+        ),
+
+        // ── STEP 1: INPUT ────────────────────────────────────────────────────
+        step === 1 && React.createElement(React.Fragment, null,
+
+          // Commits
+          React.createElement("div", { style:card, className:"fu" },
+            React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"6px" } },
+              React.createElement("label", { style:lbl }, "Git Commits"),
+              React.createElement("button", { onClick:()=>setCommits(EXAMPLE), style:ghost }, "Load example")
+            ),
+            React.createElement("p", { style:{ fontSize:"11px", color:"#475569", fontFamily:"JetBrains Mono,monospace", marginBottom:"10px" } },
+              "Run: ", React.createElement("code", { style:{ background:"#0a0e1a", padding:"2px 8px", borderRadius:"4px", color:"#f1c40f" } }, "git log --oneline v1.0.0..HEAD"), " and paste below"
+            ),
+            React.createElement("textarea", {
+              placeholder:"feat: add dark mode\nfix: resolve login bug on mobile\nperf: 40% faster page load\n...",
+              value:commits, onChange:e=>setCommits(e.target.value),
+              style:{ ...inp, color:"#94a3b8", lineHeight:"1.85", padding:"14px 16px", resize:"vertical", minHeight:"190px" }
+            }),
+            React.createElement("div", { style:{ display:"flex", gap:"14px", marginTop:"14px", flexWrap:"wrap" } },
+              React.createElement("div", null,
+                React.createElement("label", { style:{ ...lbl, marginBottom:"6px" } }, "Version"),
+                React.createElement("input", { type:"text", value:version, onChange:e=>setVersion(e.target.value), placeholder:"v1.0.0", style:{ ...inp, width:"110px" } })
+              ),
+              React.createElement("div", { style:{ flex:1, minWidth:"200px" } },
+                React.createElement("label", { style:{ ...lbl, marginBottom:"6px" } }, "AI Model"),
+                React.createElement("select", { value:model, onChange:e=>setModel(e.target.value), style:{ ...inp, cursor:"pointer" } },
+                  MODELS.map(m => React.createElement("option", { key:m.id, value:m.id }, m.label))
+                )
+              )
+            )
+          ),
+
+          // Format picker
+          React.createElement("div", { style:card, className:"fu" },
+            React.createElement("label", { style:lbl }, "Output Format"),
+            React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:"10px" } },
+              FORMATS.map(f => React.createElement("button", {
+                key:f.id, onClick:()=>setFormat(f.id),
+                style:{ background:format===f.id?"rgba(241,196,15,0.07)":"#0a0e1a", border:"1px solid "+(format===f.id?"rgba(241,196,15,0.4)":"#1e2a3a"), borderRadius:"10px", padding:"13px 12px", cursor:"pointer", textAlign:"left", transition:"all 0.2s" }
+              },
+                React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"4px" } },
+                  React.createElement("span", { style:{ fontSize:"14px" } }, f.icon),
+                  React.createElement("span", { style:{ fontFamily:"JetBrains Mono,monospace", fontSize:"12px", fontWeight:"700", color:format===f.id?"#f1c40f":"#e2e8f0" } }, f.label)
+                ),
+                React.createElement("div", { style:{ fontSize:"10.5px", color:"#475569", fontFamily:"JetBrains Mono,monospace" } }, f.desc)
+              ))
+            )
+          ),
+
+          // Error
+          error && React.createElement("div", { style:{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.28)", borderRadius:"8px", padding:"12px 16px", marginBottom:"14px", fontSize:"13px", color:"#f87171", fontFamily:"JetBrains Mono,monospace" } }, "⚠ " + error),
+
+          // Generate button
+          React.createElement("button", {
+            onClick:generate, disabled:loading,
+            style:{ width:"100%", background:loading?"rgba(241,196,15,0.07)":"linear-gradient(135deg,#f1c40f,#f39c12)", border:"none", borderRadius:"10px", color:loading?"#f1c40f":"#000", fontFamily:"Syne,sans-serif", fontSize:"15px", fontWeight:"700", padding:"17px", cursor:loading?"not-allowed":"pointer", boxShadow:loading?"none":"0 0 30px rgba(241,196,15,0.2)", display:"flex", alignItems:"center", justifyContent:"center", gap:"8px", transition:"all 0.25s" }
+          },
+            loading
+              ? [React.createElement("span", { key:"s", style:{ animation:"spin 1s linear infinite", display:"inline-block" } }, "◎"), " Generating..."]
+              : "⚡  Generate Release Notes"
+          ),
+          React.createElement("p", { style:{ textAlign:"center", fontSize:"11px", color:"#1e2a3a", marginTop:"10px", fontFamily:"JetBrains Mono,monospace" } }, "Free · No signup · No API key needed")
+        ),
+
+        // ── STEP 2: OUTPUT ───────────────────────────────────────────────────
+        step === 2 && output && React.createElement("div", { className:"fu" },
+          React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px" } },
+            React.createElement("div", null,
+              React.createElement("span", { style:{ fontSize:"13px", color:"#4ade80", fontFamily:"JetBrains Mono,monospace" } }, "✓ Done in " + (elapsed?(elapsed/1000).toFixed(2):"—") + "s"),
+              React.createElement("span", { style:{ color:"#334155", marginLeft:"10px", fontSize:"11px", fontFamily:"JetBrains Mono,monospace" } }, "· Groq · " + MODELS.find(m=>m.id===model)?.label.split(" —")[0])
+            ),
+            React.createElement("button", { onClick:reset, style:ghost }, "← New")
+          ),
+
+          // Output panel
+          React.createElement("div", { style:{ background:"#090d1a", border:"1px solid rgba(241,196,15,0.18)", borderRadius:"14px", overflow:"hidden", boxShadow:"0 30px 60px rgba(0,0,0,0.5)" } },
+            React.createElement("div", { style:{ background:"rgba(241,196,15,0.05)", borderBottom:"1px solid rgba(241,196,15,0.1)", padding:"13px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" } },
+              React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px" } },
+                React.createElement("div", { style:{ width:"9px", height:"9px", borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 8px #4ade80" } }),
+                React.createElement("span", { style:{ fontFamily:"JetBrains Mono,monospace", fontSize:"11px", color:"#64748b" } }, FORMATS.find(f=>f.id===format).label + " · " + version)
+              ),
+              React.createElement("div", { style:{ display:"flex", gap:"8px" } },
+                React.createElement(CopyBtn, { text:output,          label:"Copy" }),
+                React.createElement(CopyBtn, { text:output + credit, label:"Copy + credit 🔗" })
+              )
+            ),
+            React.createElement("div", { style:{ padding:"26px" } }, React.createElement(MD, { text:output }))
+          ),
+
+          // Raw toggle
+          React.createElement("details", { style:{ marginTop:"14px" } },
+            React.createElement("summary", { style:{ cursor:"pointer", fontSize:"11px", color:"#475569", fontFamily:"JetBrains Mono,monospace", padding:"8px 0", userSelect:"none" } }, "▸ View raw Markdown"),
+            React.createElement("pre", { style:{ background:"#0a0e1a", border:"1px solid #1e2a3a", borderRadius:"8px", padding:"16px", fontSize:"12px", fontFamily:"JetBrains Mono,monospace", color:"#64748b", overflowX:"auto", marginTop:"8px", lineHeight:"1.8", whiteSpace:"pre-wrap" } }, output)
+          ),
+
+          // Share row
+          React.createElement("div", { style:{ ...card, marginTop:"14px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"12px" } },
+            React.createElement("div", null,
+              React.createElement("div", { style:{ fontSize:"13px", color:"#e2e8f0", fontWeight:"600", marginBottom:"4px" } }, "Ship it. Share it. ⚡"),
+              React.createElement("div", { style:{ fontSize:"11px", color:"#475569", fontFamily:"JetBrains Mono,monospace" } }, '"Copy + credit" embeds a backlink in your GitHub Release')
+            ),
+            React.createElement("div", { style:{ display:"flex", gap:"8px" } },
+              React.createElement("a", { href:tweet, target:"_blank", style:{ background:"#0f172a", border:"1px solid #2d3748", borderRadius:"6px", color:"#94a3b8", padding:"8px 13px", fontSize:"12px", fontFamily:"JetBrains Mono,monospace", textDecoration:"none" } }, "𝕏 Share"),
+              React.createElement(CopyBtn, { text:output + credit, label:"Copy + credit 🔗" })
+            )
+          ),
+
+          React.createElement("p", { style:{ textAlign:"center", marginTop:"20px", fontSize:"11px", color:"#1e2a3a", fontFamily:"JetBrains Mono,monospace" } }, "Free forever · releasenotesai.netlify.app")
+        )
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
