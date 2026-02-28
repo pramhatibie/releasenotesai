@@ -47,7 +47,7 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body); }
   catch { return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid request" }) }; }
 
-  const ALLOWED = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
+  const ALLOWED = ["llama-3.3-70b-versatile", "meta-llama/llama-4-scout-17b-16e-instruct", "llama-3.1-8b-instant"];
   if (!ALLOWED.includes(body.model)) return { statusCode: 400, headers, body: JSON.stringify({ error: "Model not allowed" }) };
 
   const apiKey = process.env.GROQ_API_KEY;
