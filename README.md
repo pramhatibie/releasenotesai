@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="https://releasenotesai.vercel.app/og.png" alt="ReleaseNotes.ai banner" width="100%"/>
-
 # ⚡ ReleaseNotes.ai
 
 ### Turn messy git commits into beautiful release notes in under 1 second.
