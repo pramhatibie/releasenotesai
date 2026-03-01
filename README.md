@@ -1,12 +1,12 @@
 <div align="center">
 
-# ⚡ ReleaseNotes.ai
+# ⚡ ReleasAI
 
 ### Turn messy git commits into beautiful release notes in under 1 second.
 
 **Free · No signup · No API key needed · Powered by Groq AI**
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-releasenotesai.vercel.app-f1c40f?style=for-the-badge&labelColor=080c14)](https://releasenotesai.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-releasai.vercel.app-f1c40f?style=for-the-badge&labelColor=080c14)](https://releasai.vercel.app)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge&labelColor=080c14)](LICENSE)
 [![Made with Groq](https://img.shields.io/badge/AI-Groq_Llama_3-orange?style=for-the-badge&labelColor=080c14)](https://groq.com)
 
@@ -55,18 +55,18 @@ This release delivers dark mode, smarter analytics exports, and critical securit
 
 | Feature | Description |
 |---|---|
-| 🔀 **Any commit format** | Works with Conventional Commits, plain English, emojis, ticket numbers — anything |
+| 🤖 **AI-powered** | Groq LPU inference — results in under 1 second |
+| 🔀 **Any commit format** | Conventional Commits, plain English, emojis, ticket numbers — anything |
 | 📋 **4 output formats** | GitHub Release · npm CHANGELOG · Customer Update · Slack/Teams |
-| ⚡ **Sub-second speed** | Groq's LPU inference delivers results faster than typing |
 | 🆓 **Completely free** | No account, no API key, no credit card. Ever. |
 | 🌍 **Zero setup** | Browser-based. Works on any device. |
-| 🔗 **Shareable outputs** | Copy-with-credit button creates backlinks automatically |
+| 🔗 **Viral backlinks** | Copy-with-credit embeds a backlink in every GitHub Release |
 
 ---
 
 ## 🚀 Try It Now
 
-👉 **[releasenotesai.vercel.app](https://releasenotesai.vercel.app)**
+👉 **[releasai.vercel.app](https://releasai.vercel.app)**
 
 No installation. Open browser, paste commits, get release notes.
 
@@ -82,28 +82,27 @@ No installation. Open browser, paste commits, get release notes.
 
 ```bash
 # 1. Clone this repo
-git clone https://github.com/pramhatibie/releasenotesai.git
-cd releasenotesai
+git clone https://github.com/pramhatibie/releasai.git
+cd releasai
 
-# 2. Deploy to Vercel
-npx vercel
+# 2. Push to your own GitHub and connect to Vercel
+# vercel.com → Add New Project → Import from GitHub
 
 # 3. Add your Groq API key
 # Vercel Dashboard → Project → Settings → Environment Variables
-# Key: GROQ_API_KEY
-# Value: gsk_xxxxxxxxxxxx
+# Key: GROQ_API_KEY  |  Value: gsk_xxxxxxxxxxxx
 
 # 4. Redeploy to activate the key
-npx vercel --prod
+# Vercel Dashboard → Deployments → Redeploy
 ```
 
-That's it. Your own instance is live. ✅
+✅ Done. Your own instance is live.
 
 ### Project Structure
 
 ```
-releasenotesai/
-├── index.html          # Full frontend (React via CDN, no build step)
+releasai/
+├── index.html          # Full frontend (React via CDN, zero build step)
 ├── vercel.json         # Vercel routing config
 └── api/
     └── generate.js     # Serverless function — Groq proxy with rate limiting
@@ -114,55 +113,46 @@ releasenotesai/
 ## 🤖 How It Works
 
 ```
-User pastes commits
-       │
-       ▼
- Browser sends POST to /api/generate
-       │
-       ▼
- Vercel Serverless Function
-  ├── Rate limit check (15 req/day per IP)
-  ├── Model validation
-  └── Forwards to Groq API (llama-3.1-8b-instant)
-       │
-       ▼
- Groq LPU inference (~600ms)
-       │
-       ▼
- Structured Markdown returned to browser
-       │
-       ▼
- User copies & ships 🚀
+User pastes git commits
+         │
+         ▼
+  Browser → POST /api/generate
+         │
+         ▼
+  Vercel Serverless Function
+   ├── Rate limit (20 req/day per IP)
+   ├── Model validation
+   └── Forwards to Groq API
+         │
+         ▼
+  Groq LPU inference (~600ms)
+         │
+         ▼
+  Polished Markdown → User copies & ships 🚀
 ```
 
 ---
 
-## 📊 Output Formats Explained
+## 📋 Output Formats
 
-### GitHub Release
-Standard Markdown grouped by type (Features, Fixes, Security, etc.) with emoji headers. Ready to paste directly into GitHub's "Create Release" page.
-
-### npm CHANGELOG
-Follows the [Keep a Changelog](https://keepachangelog.com) convention exactly. Paste into your `CHANGELOG.md`.
-
-### Customer-Facing Update
-Plain-language announcement written for non-technical users. Blog post, in-app notification, or email newsletter ready.
-
-### Slack / Teams
-Short, scannable bullet list for internal team communication. Fits in a single message without scrolling.
+| Format | Use case |
+|---|---|
+| **GitHub Release** | Paste directly into GitHub → Releases → Create new release |
+| **npm CHANGELOG** | Drop into your `CHANGELOG.md` — Keep a Changelog format |
+| **Customer Update** | Blog post, in-app announcement, email newsletter |
+| **Slack / Teams** | Internal team ping — scannable, emoji-friendly |
 
 ---
 
 ## ⚙️ Configuration
 
-| Environment Variable | Required | Description |
+| Variable | Required | Description |
 |---|---|---|
-| `GROQ_API_KEY` | ✅ Yes | Your Groq API key from [console.groq.com](https://console.groq.com/keys) |
+| `GROQ_API_KEY` | ✅ | From [console.groq.com/keys](https://console.groq.com/keys) — free |
 
-### Rate Limiting
-By default: **15 free generations per IP per day**. Change in `api/generate.js`:
+**Rate limiting** — default 20 req/day per IP. Change in `api/generate.js`:
 ```js
-const DAILY_LIMIT = 15; // adjust as needed
+const DAILY_LIMIT = 20;
 ```
 
 ---
@@ -171,42 +161,37 @@ const DAILY_LIMIT = 15; // adjust as needed
 
 | Model | Speed | Quality | Status |
 |---|---|---|---|
-| `llama-3.1-8b-instant` | ⚡ ~600ms | Very good | ✅ Default (free) |
-| `llama-3.3-70b-versatile` | ~1.5s | Excellent | 🔒 Premium (coming soon) |
+| `llama-3.1-8b-instant` | ⚡ ~600ms | Very good | ✅ Free |
+| `llama-3.3-70b-versatile` | ~1.5s | Excellent | 🔒 Premium — coming soon |
 
 ---
 
 ## 🗺️ Roadmap
 
 - [ ] GitHub OAuth — auto-fetch commits from any repo
-- [ ] One-click post to GitHub Releases
-- [ ] CLI tool (`npx releasenotesai`)
+- [ ] One-click publish to GitHub Releases
+- [ ] CLI: `npx releasai`
 - [ ] VS Code extension
 - [ ] CI/CD webhook (auto-generate on git tag push)
-- [ ] Multi-language support (Japanese, Spanish, Portuguese)
 - [ ] Llama 3.3 70B for Pro users
 
 ---
 
 ## 🤝 Contributing
 
-PRs welcome! This project is intentionally simple — no build step, no bundler, just HTML + a serverless function.
+No build step, no bundler — just HTML + one serverless function. PRs welcome.
 
 ```bash
-# Fork the repo, then:
-git clone https://github.com/pramhatibie/releasenotesai.git
-
-# Open index.html in browser directly — it works without a server
-# (you'll need a backend for API calls, but UI is fully previewable)
-
-# Make changes, then submit a PR
+git clone https://github.com/pramhatibie/releasai.git
+# Edit index.html or api/generate.js
+# Submit PR
 ```
 
 ---
 
 ## 📄 License
 
-MIT — free to use, modify, and deploy. Attribution appreciated but not required.
+MIT — free to use, modify, and self-host.
 
 ---
 
@@ -214,8 +199,8 @@ MIT — free to use, modify, and deploy. Attribution appreciated but not require
 
 **Built with ❤️ and [Groq](https://groq.com) · Deployed on [Vercel](https://vercel.com)**
 
-If this saved you time, consider starring ⭐ the repo — it helps others find it.
+If Releasai saved you time, a ⭐ helps others find it.
 
-[![Star this repo](https://img.shields.io/github/stars/pramhatibie/releasenotesai?style=social)](https://github.com/pramhatibie/releasenotesai)
+[![Star this repo](https://img.shields.io/github/stars/pramhatibie/releasai?style=social)](https://github.com/pramhatibie/releasai)
 
 </div>
