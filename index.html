@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ReleasAI — Turn git commits into release notes in seconds</title>
   <meta name="description" content="Paste your git commits. Get beautiful, polished release notes in under 1 second. Free. Powered by Groq AI."/>
-  <meta property="og:title" content="Releasai — Git commits → Release notes in 1 second"/>
+  <meta property="og:title" content="ReleasAI — Git commits → Release notes in 1 second"/>
   <meta property="og:description" content="Free AI tool. Paste messy commits, get polished GitHub release notes instantly."/>
   <meta property="og:type" content="website"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -143,7 +143,7 @@ fix: race condition in real-time sync causing data loss`;
         // Read as text first — guards against empty body or HTML error pages
         const raw = await res.text();
         if (!raw.trim()) throw new Error("Empty response from server. Check that GROQ_API_KEY is set in Netlify → Site Settings → Environment Variables.");
-        if (raw.trim().startsWith("<")) throw new Error("Function not found. Check Vercel → Functions tab to confirm generate.js is deployed.");
+        if (raw.trim().startsWith("<")) throw new Error("Function not found. Check Vercel → Functions tab — generate.js must appear there.");
 
         let data;
         try { data = JSON.parse(raw); }
@@ -166,8 +166,8 @@ fix: race condition in real-time sync causing data loss`;
     }
 
     const reset = () => { setStep(1); setOutput(""); setError(""); setElapsed(null); };
-    const credit = "\n\n---\n*Generated with [Releasai](https://releasAI.vercel.app)*";
-    const tweet  = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(`Turned messy git commits into polished release notes in ${elapsed?(elapsed/1000).toFixed(1):"~1"}s ⚡\n\nFree: https://releasAI.vercel.app`);
+    const credit = "\n\n---\n*Generated with [ReleasAI](https://releasai.vercel.app)*";
+    const tweet  = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(`Turned messy git commits into polished release notes in ${elapsed?(elapsed/1000).toFixed(1):"~1"}s ⚡\n\nFree: https://releasai.vercel.app`);
 
     const card  = { background:"rgba(12,17,30,0.88)", border:"1px solid rgba(241,196,15,0.1)", borderRadius:"14px", padding:"24px", marginBottom:"14px", backdropFilter:"blur(8px)" };
     const lbl   = { fontSize:"10px", fontFamily:"JetBrains Mono,monospace", color:"#64748b", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"8px", display:"block" };
@@ -186,7 +186,7 @@ fix: race condition in real-time sync causing data loss`;
           React.createElement("div", { style:{ display:"inline-block", background:"rgba(241,196,15,0.07)", border:"1px solid rgba(241,196,15,0.16)", borderRadius:"20px", padding:"4px 14px", fontSize:"11px", color:"#f1c40f", fontFamily:"JetBrains Mono,monospace", letterSpacing:"0.5px", marginBottom:"16px" } }, "⚡ Powered by Groq · Sub-second inference · Free"),
           React.createElement("div", { style:{ display:"flex", alignItems:"center", justifyContent:"center", gap:"10px", marginBottom:"12px" } },
             React.createElement("div", { style:{ width:"36px", height:"36px", background:"linear-gradient(135deg,#f1c40f,#f39c12)", borderRadius:"9px", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:"900", fontSize:"17px", boxShadow:"0 0 24px rgba(241,196,15,0.3)", color:"#000" } }, "R"),
-            React.createElement("span", { style:{ fontSize:"20px", fontWeight:"700", fontFamily:"JetBrains Mono,monospace", color:"#f8fafc", letterSpacing:"-0.5px" } }, "Releasai")
+            React.createElement("span", { style:{ fontSize:"20px", fontWeight:"700", fontFamily:"JetBrains Mono,monospace", color:"#f8fafc", letterSpacing:"-0.5px" } }, "ReleasAI")
           ),
           React.createElement("p", { style:{ fontSize:"12px", color:"#475569", fontFamily:"JetBrains Mono,monospace", letterSpacing:"1.5px" } }, "PASTE COMMITS → BEAUTIFUL RELEASE NOTES → SHIP")
         ),
@@ -297,7 +297,7 @@ fix: race condition in real-time sync causing data loss`;
             )
           ),
 
-          React.createElement("p", { style:{ textAlign:"center", marginTop:"20px", fontSize:"11px", color:"#1e2a3a", fontFamily:"JetBrains Mono,monospace" } }, "Free forever · releasAI.vercel.app")
+          React.createElement("p", { style:{ textAlign:"center", marginTop:"20px", fontSize:"11px", color:"#1e2a3a", fontFamily:"JetBrains Mono,monospace" } }, "Free forever · releasai.vercel.app")
         )
       )
     );
