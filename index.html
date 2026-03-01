@@ -1,474 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <!-- ═══ SEO: Primary ═══ -->
-  <title>ReleaseNotes.ai — Turn Git Commits into Release Notes in 1 second</title>
-  <meta name="description" content="Free AI tool. Paste your git commits and get beautiful, polished release notes for GitHub, npm, Slack, or customers in under 1 second. No signup required."/>
-  <meta name="keywords" content="release notes generator, changelog generator, git commits to release notes, auto changelog, github release notes, ai release notes, changelog from git, semantic release notes"/>
-  <link rel="canonical" href="https://releasenotesai.vercel.app/"/>
-
-  <!-- ═══ SEO: Open Graph (Facebook, LinkedIn) ═══ -->
-  <meta property="og:type"        content="website"/>
-  <meta property="og:url"         content="https://releasenotesai.vercel.app/"/>
-  <meta property="og:title"       content="ReleaseNotes.ai — Git Commits → Release Notes in 1 Second"/>
-  <meta property="og:description" content="Stop writing changelogs by hand. Paste your commits, get polished release notes for GitHub, npm, Slack, or customers instantly. Free, no signup."/>
-  <meta property="og:image"       content="https://releasenotesai.vercel.app/og.png"/>
-
-  <!-- ═══ SEO: Twitter Card ═══ -->
-  <meta name="twitter:card"        content="summary_large_image"/>
-  <meta name="twitter:title"       content="ReleaseNotes.ai — Git Commits → Release Notes in 1 Second"/>
-  <meta name="twitter:description" content="Stop writing changelogs by hand. Free AI tool — paste commits, get polished release notes instantly."/>
-  <meta name="twitter:image"       content="https://releasenotesai.vercel.app/og.png"/>
-
-  <!-- ═══ SEO: JSON-LD Structured Data ═══ -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "ReleaseNotes.ai",
-    "url": "https://releasenotesai.vercel.app",
-    "description": "AI-powered tool that transforms git commits into polished release notes for GitHub, npm, Slack, or customer announcements in under 1 second.",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": ["GitHub Release Notes", "npm CHANGELOG", "Customer Announcements", "Slack Updates", "AI-powered", "No signup required"],
-    "author": { "@type": "Organization", "name": "ReleaseNotes.ai" }
-  }
-  </script>
-
-  <!-- ═══ Fonts ═══ -->
+  <title>Releasai — Turn Git Commits into Release Notes in 1 Second</title>
+  <meta name="description" content="Paste your git commits. Get beautiful, polished release notes in under 1 second. Free. Powered by Groq AI."/>
+  <meta property="og:title" content="Releasai — Git Commits → Release Notes in 1 Second"/>
+  <meta property="og:description" content="Free AI tool. Paste messy commits, get polished GitHub release notes instantly."/>
+  <meta property="og:type" content="website"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-
-  <!-- ═══ React (CDN, no build step) ═══ -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{background:#080c14;-webkit-font-smoothing:antialiased}
-    @keyframes spin   {from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-    @keyframes fadeUp {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes pulse  {0%,100%{opacity:1}50%{opacity:.5}}
-    .fu  {animation:fadeUp .4s ease forwards}
-    .fu2 {animation:fadeUp .4s .1s ease both}
-    .fu3 {animation:fadeUp .4s .2s ease both}
-    textarea:focus,input:focus,select:focus{border-color:rgba(241,196,15,.5)!important;box-shadow:0 0 0 3px rgba(241,196,15,.07)!important;outline:none}
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0a0e1a}::-webkit-scrollbar-thumb{background:#2d3748;border-radius:3px}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080c14; }
+    @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)} }
+    .fu { animation: fadeUp 0.35s ease forwards; }
+    textarea:focus, input:focus, select:focus {
+      border-color: rgba(241,196,15,0.5) !important;
+      box-shadow: 0 0 0 3px rgba(241,196,15,0.07) !important;
+      outline: none;
+    }
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:#0a0e1a}
+    ::-webkit-scrollbar-thumb{background:#2d3748;border-radius:3px}
     select option{background:#0d1221}
-    .badge-premium{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;vertical-align:middle;margin-left:6px}
   </style>
 </head>
 <body>
-<!-- ═══ SEO: Semantic HTML fallback for crawlers ═══ -->
-<noscript>
-  <main style="font-family:sans-serif;max-width:700px;margin:40px auto;padding:20px;color:#fff;background:#080c14">
-    <h1>ReleaseNotes.ai — Git Commits to Release Notes Generator</h1>
-    <p>Free AI tool that transforms your git commits into polished release notes for GitHub Releases, npm CHANGELOG, Slack, and customer announcements. Powered by Groq AI. No signup required.</p>
-    <p>Enable JavaScript to use the tool.</p>
-  </main>
-</noscript>
-
 <div id="root"></div>
-
 <script type="text/babel">
-const {useState, useEffect} = React;
+  const { useState } = React;
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+  const MODELS = [
+    { id: "llama-3.3-70b-versatile",               label: "Llama 3.3 70B — best quality ⭐" },
+    { id: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Llama 4 Scout — faster" },
+    { id: "llama-3.1-8b-instant",                  label: "Llama 3.1 8B — fastest" },
+  ];
 
-const MODELS = [
-  {id:"llama-3.1-8b-instant",      label:"Llama 3.1 8B",        badge:null,        desc:"Fast & efficient — great for most commits"},
-  {id:"llama-3.3-70b-versatile",   label:"Llama 3.3 70B",       badge:"PREMIUM",   desc:"Highest quality output — coming soon"},
-];
+  const FORMATS = [
+    { id: "github",   icon: "⬡", label: "GitHub Release",  desc: "Markdown for GitHub Releases" },
+    { id: "npm",      icon: "◈", label: "npm CHANGELOG",   desc: "Keep a Changelog format" },
+    { id: "customer", icon: "◎", label: "Customer-Facing", desc: "Friendly product announcement" },
+    { id: "slack",    icon: "◷", label: "Slack / Teams",   desc: "Short internal update" },
+  ];
 
-const FORMATS = [
-  {id:"github",   icon:"⬡", label:"GitHub Release",  desc:"Markdown for GitHub Releases page",   example:"Most popular"},
-  {id:"npm",      icon:"◈", label:"npm CHANGELOG",   desc:"CHANGELOG.md — Keep a Changelog fmt", example:""},
-  {id:"customer", icon:"◎", label:"Customer Update", desc:"Friendly non-technical announcement",  example:""},
-  {id:"slack",    icon:"◷", label:"Slack / Teams",   desc:"Short internal team update ping",      example:""},
-];
-
-const PROMPTS = {
-  github:`You are a senior technical writer. Transform the git commits below into polished GitHub Release Notes in Markdown.
-
-Rules:
-- Start with a single sentence summarizing this release.
-- Group changes under these H2 headings (include ONLY if matching commits exist):
-  ## 🎉 New Features
-  ## 🐛 Bug Fixes
-  ## ⚡ Performance
-  ## 🔒 Security
-  ## 💥 Breaking Changes
-  ## 🔧 Maintenance
-- Each item: bullet point, starts with a strong past-tense verb (Added, Fixed, Improved, Removed, Updated, Patched).
-- One clear sentence per bullet. Remove ticket numbers, branch names, internal jargon.
-- Final line: **Full Changelog:** \`vPREV...vNEXT\`
-- Output ONLY the Markdown. No intro text, no code fences.`,
-
-  npm:`You are a technical writer. Transform the git commits below into a CHANGELOG.md entry using Keep a Changelog format.
-
-Rules:
-- First line: ## [Unreleased] - YYYY-MM-DD (use today's date)
-- Include subsections ONLY if relevant: ### Added, ### Changed, ### Deprecated, ### Removed, ### Fixed, ### Security
-- Bullet points: clear past-tense English. No emojis. No ticket numbers.
-- Output ONLY the Markdown.`,
-
-  customer:`You are a product marketer. Transform the git commits below into a friendly, non-technical product update announcement.
-
-Rules:
-- Start with a short, punchy headline (e.g. "What's New in v2.1 ✨")
-- Write 2–3 short paragraphs. Focus on benefits and what users can now do — NOT technical implementation.
-- Use warm, direct language: "You can now...", "We've made it easier to..."
-- Add 2–3 relevant emojis naturally woven into the text.
-- End with: "As always, thanks for using [Product]! 💙"
-- Output ONLY the announcement text. No extra commentary.`,
-
-  slack:`You are a developer sending a quick Slack release ping to your team.
-
-Rules:
-- First line: *🚀 [Product Name] vX.X.X is live!*
-- 4–7 bullet points covering the most important changes. Mix of emojis and plain language.
-- Keep it scannable — this is Slack, not a novel.
-- Final line: "Full details in the release notes 👆"
+  const PROMPTS = {
+    github: `You are a senior technical writer. Transform the provided git commits into polished GitHub Release Notes in Markdown.
+- Group under these headings (only if applicable): ## 🎉 New Features, ## 🐛 Bug Fixes, ## ⚡ Performance, ## 🔒 Security, ## 💥 Breaking Changes, ## 🔧 Maintenance
+- Bullet points starting with strong verbs (Add, Fix, Improve, Remove, Update). One clear sentence each.
+- Remove jargon, ticket numbers, dev-speak. Start with a one-sentence release summary.
+- End with: **Full Changelog:** \`vPREV...vNEXT\`
+- Output ONLY the markdown.`,
+    npm: `You are a technical writer. Transform commits into a CHANGELOG.md entry following Keep a Changelog format.
+- Start: ## [Unreleased] - YYYY-MM-DD
+- Subsections only if applicable: ### Added, ### Changed, ### Deprecated, ### Removed, ### Fixed, ### Security
+- Clear past-tense bullets. No emojis, no ticket numbers.
+- Output ONLY the markdown.`,
+    customer: `You are a product marketer. Transform commits into a friendly non-technical product update.
+- 2-3 short paragraphs. Focus on user benefits. Warm language ("you can now...", "we made it easier to...").
+- 2-3 natural emojis. Punchy headline like "What's New in v2.1 ✨"
+- End with "As always, thanks for using [Product]! 💙"
+- Output ONLY the announcement text.`,
+    slack: `You are a developer writing a Slack/Teams internal release ping.
+- Start: *🚀 Release: vX.X.X is live!*
+- 4-7 bullets. Mix emojis and plain language.
+- End: "Full details in the release notes 👆"
 - Output ONLY the Slack message.`,
-};
-
-const EXAMPLE_COMMITS = `feat: add dark mode toggle to user settings panel
-fix: resolve infinite loop when user account has no projects
-perf: reduce initial JS bundle size by 40% via code splitting
-feat: implement AI-powered semantic search across all documents
-fix: broken avatar upload on mobile Safari 16+
-security: patch stored XSS vulnerability in comment markdown renderer
-feat: add one-click CSV export for analytics dashboard
-fix: email notifications not delivering for users in EU region
-chore: upgrade all dependencies to latest stable versions
-feat: team onboarding flow now supports bulk member invites
-fix: race condition in real-time sync occasionally causing data loss`;
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function MD({text}) {
-  return React.createElement("div", {style:{lineHeight:"1.8"}},
-    text.split("\n").map((line,i) => {
-      if(line.startsWith("## "))  return React.createElement("h2",{key:i,style:{color:"#f1c40f",fontSize:"14px",fontFamily:"JetBrains Mono,monospace",margin:"22px 0 9px",borderBottom:"1px solid #1e2a3a",paddingBottom:"6px"}},line.slice(3));
-      if(line.startsWith("### ")) return React.createElement("h3",{key:i,style:{color:"#94a3b8",fontSize:"10px",fontFamily:"JetBrains Mono,monospace",margin:"16px 0 6px",letterSpacing:"1.5px",textTransform:"uppercase"}},line.slice(4));
-      if(line.startsWith("# "))  return React.createElement("h1",{key:i,style:{color:"#f8fafc",fontSize:"18px",fontWeight:"700",margin:"0 0 14px",fontFamily:"Syne,sans-serif"}},line.slice(2));
-      if(/^\*\*(.+)\*\*$/.test(line.trim())) return React.createElement("p",{key:i,style:{color:"#f1c40f",fontWeight:"700",fontSize:"13px",margin:"8px 0",fontFamily:"JetBrains Mono,monospace"}},line.trim().replace(/\*\*/g,""));
-      if(/^[-*] /.test(line))   return React.createElement("div",{key:i,style:{display:"flex",gap:"9px",margin:"6px 0"}},React.createElement("span",{style:{color:"#f1c40f",flexShrink:0,marginTop:"1px"}},"▸"),React.createElement("span",{style:{fontSize:"13.5px",color:"#cbd5e1",lineHeight:"1.7"}},line.slice(2)));
-      if(!line.trim())           return React.createElement("div",{key:i,style:{height:"8px"}});
-      return React.createElement("p",{key:i,style:{margin:"5px 0",fontSize:"13.5px",color:"#cbd5e1",lineHeight:"1.7"}},line);
-    })
-  );
-}
-
-function CopyBtn({text, label, accent=false}) {
-  const [ok,setOk] = useState(false);
-  const copy = () => {
-    const fb = () => {const t=document.createElement("textarea");t.value=text;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);};
-    navigator.clipboard ? navigator.clipboard.writeText(text).catch(fb) : fb();
-    setOk(true); setTimeout(()=>setOk(false), 2000);
   };
-  const base = accent
-    ? {background:ok?"#1a4a2e":"rgba(241,196,15,0.12)", color:ok?"#4ade80":"#f1c40f", border:"1px solid "+(ok?"#4ade80":"rgba(241,196,15,0.3)")}
-    : {background:ok?"#1a4a2e":"#111827", color:ok?"#4ade80":"#94a3b8", border:"1px solid "+(ok?"#4ade80":"#2d3748")};
-  return React.createElement("button",{onClick:copy,style:{...base,borderRadius:"7px",padding:"8px 14px",fontSize:"12px",cursor:"pointer",fontFamily:"JetBrains Mono,monospace",transition:"all .2s",whiteSpace:"nowrap",fontWeight:accent?"600":"400"}}, ok?"✓ Copied!":label);
-}
 
-// ─── Stats bar (fake social proof — real after launch) ────────────────────────
-function StatsBar() {
-  const [count, setCount] = useState(2847);
-  useEffect(() => {
-    const t = setInterval(() => setCount(c => c + Math.floor(Math.random()*2)), 8000);
-    return () => clearInterval(t);
-  }, []);
-  return React.createElement("div",{style:{display:"flex",gap:"24px",justifyContent:"center",flexWrap:"wrap",marginBottom:"44px"}},
-    [{label:"Changelogs generated",val:count.toLocaleString()+"+"},{label:"Avg. generation time",val:"< 1s"},{label:"Output formats",val:"4"},{label:"Cost to you",val:"$0"}]
-    .map(s => React.createElement("div",{key:s.label,style:{textAlign:"center"}},
-      React.createElement("div",{style:{fontSize:"18px",fontWeight:"700",color:"#f1c40f",fontFamily:"JetBrains Mono,monospace",letterSpacing:"-0.5px"}},"s.val".replace("s.val",s.val)),
-      React.createElement("div",{style:{fontSize:"10px",color:"#475569",fontFamily:"JetBrains Mono,monospace",letterSpacing:"1px",textTransform:"uppercase",marginTop:"2px"}},s.label)
-    ))
-  );
-}
+  const EXAMPLE = `feat: add dark mode toggle to settings panel
+fix: resolve infinite loop when user has no projects
+perf: reduce initial bundle size by 40% via code splitting
+feat: implement AI-powered search with semantic matching
+fix: broken avatar upload on mobile Safari
+security: patch XSS vulnerability in comment renderer
+feat: add CSV export for analytics dashboard
+fix: email notifications not sending for EU users
+chore: upgrade dependencies to latest stable versions
+feat: onboarding flow now supports team invites
+fix: race condition in real-time sync causing data loss`;
 
-// ─── Main App ─────────────────────────────────────────────────────────────────
-function App() {
-  const [commits, setCommits] = useState("");
-  const [version, setVersion] = useState("v1.0.0");
-  const [format,  setFormat]  = useState("github");
-  const [model,   setModel]   = useState("llama-3.1-8b-instant");
-  const [output,  setOutput]  = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState("");
-  const [elapsed, setElapsed] = useState(null);
-  const [step,    setStep]    = useState(1); // 1=input, 2=output
-
-  async function generate() {
-    if(!commits.trim()) { setError("Paste your git commits first."); return; }
-    if(model === "llama-3.3-70b-versatile") { setError("Llama 3.3 70B is a Premium feature — coming soon! Please use Llama 3.1 8B for now."); return; }
-    setError(""); setLoading(true); setOutput("");
-    const t0 = Date.now();
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          model,
-          messages: [
-            {role:"system", content:PROMPTS[format]},
-            {role:"user",   content:"Version: "+version+"\n\nGit commits:\n"+commits+"\n\nGenerate now."},
-          ],
-        }),
-      });
-
-      const raw = await res.text();
-
-      // Detailed debug-friendly errors
-      if(!raw.trim())              throw new Error("Empty server response (HTTP "+res.status+"). Most likely cause: GROQ_API_KEY env var is set but you haven't redeployed after adding it. Go to Vercel → Deployments → Redeploy.");
-      if(raw.trim().startsWith("<")) throw new Error("Server returned HTML instead of JSON (HTTP "+res.status+"). The /api/generate function is not running. Check Vercel → Functions tab.");
-
-      let data;
-      try { data = JSON.parse(raw); }
-      catch { throw new Error("Unparseable server response: "+raw.slice(0,100)); }
-
-      if(res.status===429) throw new Error(data.error || "Rate limit reached.");
-      if(!res.ok)          throw new Error(data.error || "Server error "+res.status);
-
-      const text = data.choices?.[0]?.message?.content;
-      if(!text)            throw new Error("Groq returned empty content. Try again.");
-
-      setElapsed(Date.now()-t0);
-      setOutput(text);
-      setStep(2);
-    } catch(e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
+  function MD({ text }) {
+    return React.createElement("div", { style: { lineHeight: "1.8" } },
+      text.split("\n").map((line, i) => {
+        if (line.startsWith("## "))  return React.createElement("h2", { key: i, style: { color: "#f1c40f", fontSize: "14px", fontFamily: "JetBrains Mono,monospace", margin: "20px 0 8px", borderBottom: "1px solid #1e2a3a", paddingBottom: "5px" } }, line.slice(3));
+        if (line.startsWith("### ")) return React.createElement("h3", { key: i, style: { color: "#94a3b8", fontSize: "10px", fontFamily: "JetBrains Mono,monospace", margin: "14px 0 6px", letterSpacing: "1.5px", textTransform: "uppercase" } }, line.slice(4));
+        if (line.startsWith("# "))  return React.createElement("h1", { key: i, style: { color: "#f8fafc", fontSize: "18px", fontWeight: "700", margin: "0 0 14px", fontFamily: "Syne,sans-serif" } }, line.slice(2));
+        if (/^[-*] /.test(line))   return React.createElement("div", { key: i, style: { display: "flex", gap: "8px", margin: "5px 0" } }, React.createElement("span", { style: { color: "#f1c40f", flexShrink: 0 } }, "▸"), React.createElement("span", { style: { fontSize: "13px", color: "#cbd5e1" } }, line.slice(2)));
+        if (!line.trim())           return React.createElement("div", { key: i, style: { height: "8px" } });
+        return React.createElement("p", { key: i, style: { margin: "4px 0", fontSize: "13px", color: "#cbd5e1" } }, line);
+      })
+    );
   }
 
-  const reset  = () => {setStep(1);setOutput("");setError("");setElapsed(null);};
-  const credit = "\n\n---\n*Generated with [ReleaseNotes.ai](https://releasenotesai.vercel.app) — Turn git commits into release notes in seconds.*";
-  const tweet  = "https://twitter.com/intent/tweet?text="+encodeURIComponent("Stop writing changelogs by hand.\n\nI use ReleaseNotes.ai to turn messy git commits into polished release notes in <1s ⚡\n\nFree tool → https://releasenotesai.vercel.app");
+  function CopyBtn({ text, label }) {
+    const [ok, setOk] = useState(false);
+    const copy = () => {
+      const fb = () => { const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t); };
+      navigator.clipboard ? navigator.clipboard.writeText(text).catch(fb) : fb();
+      setOk(true); setTimeout(() => setOk(false), 2000);
+    };
+    return React.createElement("button", {
+      onClick: copy,
+      style: { background: ok?"#1a4a2e":"#111827", color: ok?"#4ade80":"#94a3b8", border:`1px solid ${ok?"#4ade80":"#2d3748"}`, borderRadius:"6px", padding:"7px 13px", fontSize:"11.5px", cursor:"pointer", fontFamily:"JetBrains Mono,monospace", transition:"all 0.2s", whiteSpace:"nowrap" }
+    }, ok ? "✓ Copied!" : label);
+  }
 
-  // ── Style tokens ────────────────────────────────────────────────────────────
-  const card  = {background:"rgba(12,17,30,0.9)",border:"1px solid rgba(241,196,15,0.1)",borderRadius:"14px",padding:"24px",marginBottom:"14px",backdropFilter:"blur(10px)",boxShadow:"0 4px 24px rgba(0,0,0,0.3)"};
-  const lbl   = {fontSize:"10px",fontFamily:"JetBrains Mono,monospace",color:"#64748b",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"8px",display:"block"};
-  const inp   = {width:"100%",background:"#0a0e1a",border:"1px solid #1e2a3a",borderRadius:"8px",color:"#e2e8f0",fontFamily:"JetBrains Mono,monospace",fontSize:"13px",padding:"11px 14px",outline:"none",transition:"border-color .2s"};
-  const ghost = {background:"none",border:"1px solid #1e2a3a",borderRadius:"6px",color:"#64748b",fontSize:"11px",cursor:"pointer",padding:"5px 10px",fontFamily:"JetBrains Mono,monospace",transition:"all .2s"};
+  function App() {
+    const [commits, setCommits] = useState("");
+    const [version, setVersion] = useState("v1.0.0");
+    const [format,  setFormat]  = useState("github");
+    const [model,   setModel]   = useState("llama-3.3-70b-versatile");
+    const [output,  setOutput]  = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error,   setError]   = useState("");
+    const [elapsed, setElapsed] = useState(null);
+    const [step,    setStep]    = useState(1);
 
-  return React.createElement("div",{style:{minHeight:"100vh",background:"#080c14",color:"#e2e8f0",fontFamily:"Syne,sans-serif"}},
+    async function generate() {
+      if (!commits.trim()) { setError("Paste your git commits first."); return; }
+      setError(""); setLoading(true); setOutput("");
+      const t0 = Date.now();
+      try {
+        const payload = {
+          model,
+          messages: [
+            { role: "system", content: PROMPTS[format] },
+            { role: "user",   content: `Version: ${version}\n\nGit commits:\n${commits}\n\nGenerate now.` },
+          ],
+        };
 
-    // ── Background ───────────────────────────────────────────────────────────
-    React.createElement("div",{style:{position:"fixed",inset:0,backgroundImage:"linear-gradient(rgba(241,196,15,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(241,196,15,0.025) 1px,transparent 1px)",backgroundSize:"40px 40px",pointerEvents:"none",zIndex:0}}),
-    React.createElement("div",{style:{position:"fixed",top:"-250px",left:"50%",transform:"translateX(-50%)",width:"800px",height:"600px",background:"radial-gradient(ellipse,rgba(241,196,15,0.055) 0%,transparent 70%)",pointerEvents:"none",zIndex:0}}),
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-    React.createElement("div",{style:{position:"relative",zIndex:1,maxWidth:"780px",margin:"0 auto",padding:"48px 20px 100px"}},
+        // Read as text first — guards against empty body or HTML error pages
+        const raw = await res.text();
+        if (!raw.trim()) throw new Error("Empty response from server. Go to Vercel → Project Settings → Environment Variables, confirm GROQ_API_KEY is set, then redeploy.");
+        if (raw.trim().startsWith("<")) throw new Error("Function not found. Check Vercel → Functions tab to confirm generate.js is deployed.");
 
-      // ── HEADER ─────────────────────────────────────────────────────────────
-      React.createElement("header",{className:"fu",style:{textAlign:"center",marginBottom:"16px"}},
-        React.createElement("div",{style:{display:"inline-block",background:"rgba(241,196,15,0.07)",border:"1px solid rgba(241,196,15,0.18)",borderRadius:"20px",padding:"5px 14px",fontSize:"11px",color:"#f1c40f",fontFamily:"JetBrains Mono,monospace",letterSpacing:"0.5px",marginBottom:"20px"}},"⚡ Powered by Groq · Free · No signup required"),
-        React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"center",gap:"12px",marginBottom:"16px"}},
-          React.createElement("div",{style:{width:"40px",height:"40px",background:"linear-gradient(135deg,#f1c40f,#f39c12)",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"900",fontSize:"20px",boxShadow:"0 0 28px rgba(241,196,15,0.35)",color:"#000",flexShrink:0}},"R"),
-          React.createElement("h1",{style:{fontSize:"clamp(22px,5vw,30px)",fontWeight:"800",color:"#f8fafc",letterSpacing:"-1px",lineHeight:1}},"ReleaseNotes.ai")
+        let data;
+        try { data = JSON.parse(raw); }
+        catch { throw new Error("Unexpected server response. Please try again."); }
+
+        if (res.status === 429) throw new Error(data.error || "Daily limit reached.");
+        if (!res.ok)            throw new Error(data.error || `Server error ${res.status}`);
+
+        const text = data.choices?.[0]?.message?.content;
+        if (!text) throw new Error("No output returned. Try again.");
+
+        setElapsed(Date.now() - t0);
+        setOutput(text);
+        setStep(2);
+      } catch(e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    const reset = () => { setStep(1); setOutput(""); setError(""); setElapsed(null); };
+    const credit = "\n\n---\n*Generated with [Releasai](https://releasai.vercel.app)*";
+    const tweet  = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(`Turned messy git commits into polished release notes in ${elapsed?(elapsed/1000).toFixed(1):"~1"}s ⚡\n\nFree: https://releasai.vercel.app`);
+
+    const card  = { background:"rgba(12,17,30,0.88)", border:"1px solid rgba(241,196,15,0.1)", borderRadius:"14px", padding:"24px", marginBottom:"14px", backdropFilter:"blur(8px)" };
+    const lbl   = { fontSize:"10px", fontFamily:"JetBrains Mono,monospace", color:"#64748b", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"8px", display:"block" };
+    const inp   = { width:"100%", background:"#0a0e1a", border:"1px solid #1e2a3a", borderRadius:"8px", color:"#e2e8f0", fontFamily:"JetBrains Mono,monospace", fontSize:"13px", padding:"11px 14px", outline:"none" };
+    const ghost = { background:"none", border:"1px solid #1e2a3a", borderRadius:"6px", color:"#64748b", fontSize:"11px", cursor:"pointer", padding:"5px 10px", fontFamily:"JetBrains Mono,monospace" };
+
+    return React.createElement("div", { style:{ minHeight:"100vh", background:"#080c14", color:"#e2e8f0", fontFamily:"Syne,sans-serif" } },
+      // Grid bg
+      React.createElement("div", { style:{ position:"fixed", inset:0, backgroundImage:"linear-gradient(rgba(241,196,15,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(241,196,15,0.03) 1px,transparent 1px)", backgroundSize:"40px 40px", pointerEvents:"none", zIndex:0 } }),
+      React.createElement("div", { style:{ position:"fixed", top:"-200px", left:"50%", transform:"translateX(-50%)", width:"700px", height:"500px", background:"radial-gradient(ellipse,rgba(241,196,15,0.06) 0%,transparent 70%)", pointerEvents:"none", zIndex:0 } }),
+
+      React.createElement("div", { style:{ position:"relative", zIndex:1, maxWidth:"760px", margin:"0 auto", padding:"40px 20px 80px" } },
+
+        // ── HEADER ──────────────────────────────────────────────────────────
+        React.createElement("div", { className:"fu", style:{ textAlign:"center", marginBottom:"44px" } },
+          React.createElement("div", { style:{ display:"inline-block", background:"rgba(241,196,15,0.07)", border:"1px solid rgba(241,196,15,0.16)", borderRadius:"20px", padding:"4px 14px", fontSize:"11px", color:"#f1c40f", fontFamily:"JetBrains Mono,monospace", letterSpacing:"0.5px", marginBottom:"16px" } }, "⚡ Powered by Groq · Sub-second inference · Free"),
+          React.createElement("div", { style:{ display:"flex", alignItems:"center", justifyContent:"center", gap:"10px", marginBottom:"12px" } },
+            React.createElement("div", { style:{ width:"36px", height:"36px", background:"linear-gradient(135deg,#f1c40f,#f39c12)", borderRadius:"9px", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:"900", fontSize:"17px", boxShadow:"0 0 24px rgba(241,196,15,0.3)", color:"#000" } }, "R"),
+            React.createElement("span", { style:{ fontSize:"20px", fontWeight:"700", fontFamily:"JetBrains Mono,monospace", color:"#f8fafc", letterSpacing:"-0.5px" } }, "Releasai")
+          ),
+          React.createElement("p", { style:{ fontSize:"12px", color:"#475569", fontFamily:"JetBrains Mono,monospace", letterSpacing:"1.5px" } }, "PASTE COMMITS → BEAUTIFUL RELEASE NOTES → SHIP")
         ),
-        React.createElement("p",{style:{fontSize:"clamp(14px,3vw,17px)",color:"#94a3b8",maxWidth:"520px",margin:"0 auto 8px",lineHeight:"1.6"}},"Turn messy git commits into ", React.createElement("strong",{style:{color:"#e2e8f0"}},"beautiful release notes"), " in under 1 second."),
-        React.createElement("p",{style:{fontSize:"12px",color:"#475569",fontFamily:"JetBrains Mono,monospace",letterSpacing:"1px",marginTop:"8px"}},"GitHub · npm · Customer Updates · Slack")
-      ),
 
-      // ── STATS ───────────────────────────────────────────────────────────────
-      React.createElement("div",{className:"fu2",style:{display:"flex",gap:"20px",justifyContent:"center",flexWrap:"wrap",marginBottom:"40px"}},
-        [{val:"4,200+",lbl:"Changelogs generated"},{val:"< 1s",lbl:"Avg. generation time"},{val:"4",lbl:"Output formats"},{val:"Free",lbl:"Forever"}]
-        .map(s=>React.createElement("div",{key:s.lbl,style:{textAlign:"center",padding:"12px 16px",background:"rgba(241,196,15,0.04)",border:"1px solid rgba(241,196,15,0.08)",borderRadius:"10px",minWidth:"90px"}},
-          React.createElement("div",{style:{fontSize:"16px",fontWeight:"700",color:"#f1c40f",fontFamily:"JetBrains Mono,monospace"}},"s.val".replace("s.val",s.val)),
-          React.createElement("div",{style:{fontSize:"9px",color:"#475569",fontFamily:"JetBrains Mono,monospace",letterSpacing:"1px",textTransform:"uppercase",marginTop:"3px"}},s.lbl)
-        ))
-      ),
+        // ── STEP 1: INPUT ────────────────────────────────────────────────────
+        step === 1 && React.createElement(React.Fragment, null,
 
-      // ══════════════════════════════════════════════════════════════════════
-      // STEP 1 — INPUT
-      // ══════════════════════════════════════════════════════════════════════
-      step===1 && React.createElement(React.Fragment,null,
-
-        // Commits input
-        React.createElement("section",{style:card,className:"fu2","aria-label":"Git commits input"},
-          React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}},
-            React.createElement("label",{htmlFor:"commits-input",style:lbl},"Your Git Commits"),
-            React.createElement("button",{onClick:()=>setCommits(EXAMPLE_COMMITS),style:ghost},"Load example ↓")
-          ),
-          React.createElement("p",{style:{fontSize:"11px",color:"#475569",fontFamily:"JetBrains Mono,monospace",marginBottom:"10px"}},
-            "Run this in your terminal: ",
-            React.createElement("code",{style:{background:"#0d1428",padding:"3px 8px",borderRadius:"5px",color:"#f1c40f",userSelect:"all"}},"git log --oneline v1.0.0..HEAD")
-          ),
-          React.createElement("textarea",{
-            id:"commits-input",
-            "aria-label":"Paste git commits here",
-            placeholder:"feat: add dark mode\nfix: resolve login bug on mobile\nperf: 40% faster page load\nsecurity: patch XSS in comments\n...",
-            value:commits, onChange:e=>setCommits(e.target.value),
-            style:{...inp,color:"#94a3b8",lineHeight:"1.9",padding:"14px 16px",resize:"vertical",minHeight:"200px"}
-          }),
-          commits && React.createElement("p",{style:{fontSize:"10px",color:"#334155",fontFamily:"JetBrains Mono,monospace",marginTop:"6px",textAlign:"right"}},commits.split("\n").filter(l=>l.trim()).length+" commits detected"),
-
-          React.createElement("div",{style:{display:"flex",gap:"14px",marginTop:"16px",flexWrap:"wrap"}},
-            React.createElement("div",null,
-              React.createElement("label",{htmlFor:"version-input",style:{...lbl,marginBottom:"6px"}},"Version Tag"),
-              React.createElement("input",{id:"version-input",type:"text",value:version,onChange:e=>setVersion(e.target.value),placeholder:"v1.0.0",style:{...inp,width:"120px"},"aria-label":"Version tag"})
+          // Commits
+          React.createElement("div", { style:card, className:"fu" },
+            React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"6px" } },
+              React.createElement("label", { style:lbl }, "Git Commits"),
+              React.createElement("button", { onClick:()=>setCommits(EXAMPLE), style:ghost }, "Load example")
             ),
-            React.createElement("div",{style:{flex:1,minWidth:"220px"}},
-              React.createElement("label",{htmlFor:"model-select",style:{...lbl,marginBottom:"6px"}},"AI Model"),
-              React.createElement("select",{
-                id:"model-select",
-                value:model,onChange:e=>setModel(e.target.value),
-                style:{...inp,cursor:"pointer"},"aria-label":"Select AI model"
+            React.createElement("p", { style:{ fontSize:"11px", color:"#475569", fontFamily:"JetBrains Mono,monospace", marginBottom:"10px" } },
+              "Run: ", React.createElement("code", { style:{ background:"#0a0e1a", padding:"2px 8px", borderRadius:"4px", color:"#f1c40f" } }, "git log --oneline v1.0.0..HEAD"), " and paste below"
+            ),
+            React.createElement("textarea", {
+              placeholder:"feat: add dark mode\nfix: resolve login bug on mobile\nperf: 40% faster page load\n...",
+              value:commits, onChange:e=>setCommits(e.target.value),
+              style:{ ...inp, color:"#94a3b8", lineHeight:"1.85", padding:"14px 16px", resize:"vertical", minHeight:"190px" }
+            }),
+            React.createElement("div", { style:{ display:"flex", gap:"14px", marginTop:"14px", flexWrap:"wrap" } },
+              React.createElement("div", null,
+                React.createElement("label", { style:{ ...lbl, marginBottom:"6px" } }, "Version"),
+                React.createElement("input", { type:"text", value:version, onChange:e=>setVersion(e.target.value), placeholder:"v1.0.0", style:{ ...inp, width:"110px" } })
+              ),
+              React.createElement("div", { style:{ flex:1, minWidth:"200px" } },
+                React.createElement("label", { style:{ ...lbl, marginBottom:"6px" } }, "AI Model"),
+                React.createElement("select", { value:model, onChange:e=>setModel(e.target.value), style:{ ...inp, cursor:"pointer" } },
+                  MODELS.map(m => React.createElement("option", { key:m.id, value:m.id }, m.label))
+                )
+              )
+            )
+          ),
+
+          // Format picker
+          React.createElement("div", { style:card, className:"fu" },
+            React.createElement("label", { style:lbl }, "Output Format"),
+            React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:"10px" } },
+              FORMATS.map(f => React.createElement("button", {
+                key:f.id, onClick:()=>setFormat(f.id),
+                style:{ background:format===f.id?"rgba(241,196,15,0.07)":"#0a0e1a", border:"1px solid "+(format===f.id?"rgba(241,196,15,0.4)":"#1e2a3a"), borderRadius:"10px", padding:"13px 12px", cursor:"pointer", textAlign:"left", transition:"all 0.2s" }
               },
-                MODELS.map(m=>React.createElement("option",{key:m.id,value:m.id,disabled:m.badge==="PREMIUM"},
-                  m.label + (m.badge==="PREMIUM" ? " 🔒 Coming Soon" : " — "+m.desc)
-                ))
-              ),
-              model==="llama-3.3-70b-versatile" && React.createElement("p",{style:{fontSize:"10px",color:"#a855f7",fontFamily:"JetBrains Mono,monospace",marginTop:"5px"}},"🔒 Premium feature — coming soon! Switch to Llama 3.1 8B to generate now.")
-            )
-          )
-        ),
-
-        // Output format
-        React.createElement("section",{style:card,className:"fu2","aria-label":"Output format selection"},
-          React.createElement("label",{style:lbl},"Output Format"),
-          React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:"10px"}},
-            FORMATS.map(f=>React.createElement("button",{
-              key:f.id,onClick:()=>setFormat(f.id),
-              "aria-pressed":format===f.id,
-              style:{background:format===f.id?"rgba(241,196,15,0.08)":"#0a0e1a",border:"1px solid "+(format===f.id?"rgba(241,196,15,0.45)":"#1e2a3a"),borderRadius:"10px",padding:"14px 12px",cursor:"pointer",textAlign:"left",transition:"all .2s",position:"relative"}
-            },
-              f.example && React.createElement("span",{style:{position:"absolute",top:"8px",right:"8px",fontSize:"8px",background:"rgba(241,196,15,0.15)",color:"#f1c40f",padding:"2px 5px",borderRadius:"3px",fontFamily:"JetBrains Mono,monospace"}},f.example),
-              React.createElement("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"5px"}},
-                React.createElement("span",{style:{fontSize:"15px"}},"f.icon".replace("f.icon",f.icon)),
-                React.createElement("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"12px",fontWeight:"700",color:format===f.id?"#f1c40f":"#e2e8f0"}},f.label)
-              ),
-              React.createElement("div",{style:{fontSize:"10px",color:"#475569",fontFamily:"JetBrains Mono,monospace",lineHeight:"1.5"}},f.desc)
-            ))
-          )
-        ),
-
-        // Error
-        error && React.createElement("div",{role:"alert",style:{background:"rgba(239,68,68,0.07)",border:"1px solid rgba(239,68,68,0.3)",borderRadius:"9px",padding:"14px 16px",marginBottom:"14px",fontSize:"12.5px",color:"#f87171",fontFamily:"JetBrains Mono,monospace",lineHeight:"1.7"}},"⚠ "+error),
-
-        // Generate button
-        React.createElement("button",{
-          onClick:generate,disabled:loading,
-          "aria-label":"Generate release notes",
-          style:{width:"100%",background:loading?"rgba(241,196,15,0.07)":"linear-gradient(135deg,#f1c40f,#f39c12)",border:"none",borderRadius:"11px",color:loading?"#f1c40f":"#000",fontFamily:"Syne,sans-serif",fontSize:"16px",fontWeight:"700",padding:"18px",cursor:loading?"not-allowed":"pointer",boxShadow:loading?"none":"0 0 36px rgba(241,196,15,0.22)",display:"flex",alignItems:"center",justifyContent:"center",gap:"10px",transition:"all .25s",letterSpacing:"0.3px"}
-        }, loading
-          ? [React.createElement("span",{key:"s",style:{animation:"spin 1s linear infinite",display:"inline-block"}},"◎")," Generating with Groq..."]
-          : "⚡  Generate Release Notes — Free"
-        ),
-        React.createElement("p",{style:{textAlign:"center",fontSize:"11px",color:"#1e2a3a",marginTop:"10px",fontFamily:"JetBrains Mono,monospace"}},"No signup · No API key · Instant results · Powered by Groq"),
-
-        // ── HOW IT WORKS (SEO content + trust) ────────────────────────────
-        React.createElement("section",{style:{marginTop:"60px"},"aria-label":"How it works"},
-          React.createElement("h2",{style:{textAlign:"center",fontSize:"18px",fontWeight:"700",color:"#f8fafc",marginBottom:"24px"}},"How It Works"),
-          React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:"16px"}},
-            [
-              {n:"1",title:"Paste your commits",body:"Run git log --oneline and paste the output. Works with any commit format — conventional commits, emojis, or plain text."},
-              {n:"2",title:"Choose your format",body:"GitHub Release, npm CHANGELOG, customer-facing update, or Slack message. Pick what fits your workflow."},
-              {n:"3",title:"Copy & ship",body:"Get polished, professional release notes in under 1 second. Copy to clipboard and paste wherever you need it."},
-            ].map(s=>React.createElement("div",{key:s.n,style:{background:"rgba(12,17,30,0.6)",border:"1px solid rgba(241,196,15,0.07)",borderRadius:"12px",padding:"20px"}},
-              React.createElement("div",{style:{width:"28px",height:"28px",background:"rgba(241,196,15,0.1)",border:"1px solid rgba(241,196,15,0.2)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px",fontWeight:"700",color:"#f1c40f",fontFamily:"JetBrains Mono,monospace",marginBottom:"12px"}},s.n),
-              React.createElement("h3",{style:{fontSize:"14px",fontWeight:"600",color:"#e2e8f0",marginBottom:"6px"}},s.title),
-              React.createElement("p",{style:{fontSize:"12px",color:"#64748b",lineHeight:"1.6"}},s.body)
-            ))
-          )
-        ),
-
-        // ── FAQ (SEO) ──────────────────────────────────────────────────────
-        React.createElement("section",{style:{marginTop:"50px"},"aria-label":"FAQ"},
-          React.createElement("h2",{style:{textAlign:"center",fontSize:"18px",fontWeight:"700",color:"#f8fafc",marginBottom:"24px"}},"Frequently Asked Questions"),
-          React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:"12px"}},
-            [
-              {q:"Is ReleaseNotes.ai really free?",a:"Yes, completely free. No credit card, no signup, no usage limits on your end. We cover the AI costs via Groq's ultra-fast free inference tier."},
-              {q:"What git commit formats are supported?",a:"Any format. Conventional Commits (feat:, fix:, chore:), plain English descriptions, emoji prefixes, ticket numbers — the AI handles it all and strips out the noise."},
-              {q:"How is this different from GitHub's auto-generate feature?",a:"GitHub's feature just lists PR titles. ReleaseNotes.ai uses AI to write in natural language, groups changes by type, removes jargon, and generates 4 different output formats tailored for different audiences."},
-              {q:"How does it compare to git-cliff or conventional-changelog?",a:"Those CLI tools require Conventional Commits format and terminal setup. ReleaseNotes.ai works in your browser with any commit style — no config, no install, zero setup."},
-              {q:"Is my code or commit history stored?",a:"No. Your commits are sent directly to Groq's API for inference and are not stored anywhere. Groq's privacy policy applies to the inference request."},
-            ].map(faq=>React.createElement("details",{key:faq.q,style:{background:"rgba(12,17,30,0.6)",border:"1px solid rgba(241,196,15,0.07)",borderRadius:"10px",padding:"16px 20px",cursor:"pointer"}},
-              React.createElement("summary",{style:{fontSize:"13.5px",fontWeight:"600",color:"#e2e8f0",cursor:"pointer",userSelect:"none",listStyle:"none",display:"flex",justifyContent:"space-between",alignItems:"center"}},
-                faq.q,
-                React.createElement("span",{style:{color:"#f1c40f",fontSize:"16px",flexShrink:0,marginLeft:"12px"}},"+")
-              ),
-              React.createElement("p",{style:{fontSize:"13px",color:"#94a3b8",marginTop:"10px",lineHeight:"1.7"}},faq.a)
-            ))
-          )
-        )
-      ),
-
-      // ══════════════════════════════════════════════════════════════════════
-      // STEP 2 — OUTPUT
-      // ══════════════════════════════════════════════════════════════════════
-      step===2 && output && React.createElement("div",{className:"fu"},
-        // Timing bar
-        React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}},
-          React.createElement("div",{style:{display:"flex",alignItems:"center",gap:"10px"}},
-            React.createElement("div",{style:{width:"8px",height:"8px",borderRadius:"50%",background:"#4ade80",boxShadow:"0 0 8px #4ade80"}}),
-            React.createElement("span",{style:{fontSize:"13px",color:"#4ade80",fontFamily:"JetBrains Mono,monospace"}},"Generated in "+(elapsed?(elapsed/1000).toFixed(2):"—")+"s"),
-            React.createElement("span",{style:{fontSize:"11px",color:"#334155",fontFamily:"JetBrains Mono,monospace"}},"via Groq")
-          ),
-          React.createElement("button",{onClick:reset,style:ghost},"← Generate another")
-        ),
-
-        // Output panel
-        React.createElement("article",{style:{background:"#090d1a",border:"1px solid rgba(241,196,15,0.2)",borderRadius:"14px",overflow:"hidden",boxShadow:"0 30px 60px rgba(0,0,0,0.5),0 0 60px rgba(241,196,15,0.03)"},"aria-label":"Generated release notes"},
-          React.createElement("div",{style:{background:"rgba(241,196,15,0.05)",borderBottom:"1px solid rgba(241,196,15,0.1)",padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"10px"}},
-            React.createElement("div",{style:{display:"flex",alignItems:"center",gap:"8px"}},
-              React.createElement("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"11px",color:"#64748b"}},"📋 "+FORMATS.find(f=>f.id===format).label+" · "+version+" · "+MODELS.find(m=>m.id===model).label)
-            ),
-            React.createElement("div",{style:{display:"flex",gap:"8px"}},
-              React.createElement(CopyBtn,{text:output,            label:"Copy"}),
-              React.createElement(CopyBtn,{text:output+credit,     label:"Copy + backlink 🔗", accent:true})
+                React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"4px" } },
+                  React.createElement("span", { style:{ fontSize:"14px" } }, f.icon),
+                  React.createElement("span", { style:{ fontFamily:"JetBrains Mono,monospace", fontSize:"12px", fontWeight:"700", color:format===f.id?"#f1c40f":"#e2e8f0" } }, f.label)
+                ),
+                React.createElement("div", { style:{ fontSize:"10.5px", color:"#475569", fontFamily:"JetBrains Mono,monospace" } }, f.desc)
+              ))
             )
           ),
-          React.createElement("div",{style:{padding:"28px"}},React.createElement(MD,{text:output}))
+
+          // Error
+          error && React.createElement("div", { style:{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.28)", borderRadius:"8px", padding:"12px 16px", marginBottom:"14px", fontSize:"13px", color:"#f87171", fontFamily:"JetBrains Mono,monospace" } }, "⚠ " + error),
+
+          // Generate button
+          React.createElement("button", {
+            onClick:generate, disabled:loading,
+            style:{ width:"100%", background:loading?"rgba(241,196,15,0.07)":"linear-gradient(135deg,#f1c40f,#f39c12)", border:"none", borderRadius:"10px", color:loading?"#f1c40f":"#000", fontFamily:"Syne,sans-serif", fontSize:"15px", fontWeight:"700", padding:"17px", cursor:loading?"not-allowed":"pointer", boxShadow:loading?"none":"0 0 30px rgba(241,196,15,0.2)", display:"flex", alignItems:"center", justifyContent:"center", gap:"8px", transition:"all 0.25s" }
+          },
+            loading
+              ? [React.createElement("span", { key:"s", style:{ animation:"spin 1s linear infinite", display:"inline-block" } }, "◎"), " Generating..."]
+              : "⚡  Generate Release Notes"
+          ),
+          React.createElement("p", { style:{ textAlign:"center", fontSize:"11px", color:"#1e2a3a", marginTop:"10px", fontFamily:"JetBrains Mono,monospace" } }, "Free · No signup · No API key needed")
         ),
 
-        // Raw markdown toggle
-        React.createElement("details",{style:{marginTop:"12px"}},
-          React.createElement("summary",{style:{cursor:"pointer",fontSize:"11px",color:"#475569",fontFamily:"JetBrains Mono,monospace",padding:"8px 0",userSelect:"none"}},"▸ View raw Markdown"),
-          React.createElement("pre",{style:{background:"#0a0e1a",border:"1px solid #1e2a3a",borderRadius:"9px",padding:"16px",fontSize:"12px",fontFamily:"JetBrains Mono,monospace",color:"#64748b",overflowX:"auto",marginTop:"8px",lineHeight:"1.85",whiteSpace:"pre-wrap"}},output)
-        ),
-
-        // Share + credit section
-        React.createElement("div",{style:{...card,marginTop:"14px"}},
-          React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"14px"}},
-            React.createElement("div",null,
-              React.createElement("p",{style:{fontSize:"13.5px",fontWeight:"600",color:"#e2e8f0",marginBottom:"5px"}},"Share the tool, help other devs ⚡"),
-              React.createElement("p",{style:{fontSize:"11px",color:"#475569",fontFamily:"JetBrains Mono,monospace",lineHeight:"1.6"}},"\"Copy + backlink\" adds a one-line credit when you paste into GitHub Releases.",React.createElement("br"),React.createElement("span",{style:{color:"#334155"}},"Every shared changelog = free discovery for other developers."))
+        // ── STEP 2: OUTPUT ───────────────────────────────────────────────────
+        step === 2 && output && React.createElement("div", { className:"fu" },
+          React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px" } },
+            React.createElement("div", null,
+              React.createElement("span", { style:{ fontSize:"13px", color:"#4ade80", fontFamily:"JetBrains Mono,monospace" } }, "✓ Done in " + (elapsed?(elapsed/1000).toFixed(2):"—") + "s"),
+              React.createElement("span", { style:{ color:"#334155", marginLeft:"10px", fontSize:"11px", fontFamily:"JetBrains Mono,monospace" } }, "· Groq · " + MODELS.find(m=>m.id===model)?.label.split(" —")[0])
             ),
-            React.createElement("div",{style:{display:"flex",gap:"8px",flexShrink:0}},
-              React.createElement("a",{href:tweet,target:"_blank",rel:"noopener",style:{background:"#0f172a",border:"1px solid #2d3748",borderRadius:"7px",color:"#94a3b8",padding:"9px 14px",fontSize:"12px",fontFamily:"JetBrains Mono,monospace",textDecoration:"none",display:"inline-block"}},"𝕏 Tweet this"),
-              React.createElement(CopyBtn,{text:output+credit,label:"Copy + backlink 🔗",accent:true})
+            React.createElement("button", { onClick:reset, style:ghost }, "← New")
+          ),
+
+          // Output panel
+          React.createElement("div", { style:{ background:"#090d1a", border:"1px solid rgba(241,196,15,0.18)", borderRadius:"14px", overflow:"hidden", boxShadow:"0 30px 60px rgba(0,0,0,0.5)" } },
+            React.createElement("div", { style:{ background:"rgba(241,196,15,0.05)", borderBottom:"1px solid rgba(241,196,15,0.1)", padding:"13px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" } },
+              React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px" } },
+                React.createElement("div", { style:{ width:"9px", height:"9px", borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 8px #4ade80" } }),
+                React.createElement("span", { style:{ fontFamily:"JetBrains Mono,monospace", fontSize:"11px", color:"#64748b" } }, FORMATS.find(f=>f.id===format).label + " · " + version)
+              ),
+              React.createElement("div", { style:{ display:"flex", gap:"8px" } },
+                React.createElement(CopyBtn, { text:output,          label:"Copy" }),
+                React.createElement(CopyBtn, { text:output + credit, label:"Copy + credit 🔗" })
+              )
+            ),
+            React.createElement("div", { style:{ padding:"26px" } }, React.createElement(MD, { text:output }))
+          ),
+
+          // Raw toggle
+          React.createElement("details", { style:{ marginTop:"14px" } },
+            React.createElement("summary", { style:{ cursor:"pointer", fontSize:"11px", color:"#475569", fontFamily:"JetBrains Mono,monospace", padding:"8px 0", userSelect:"none" } }, "▸ View raw Markdown"),
+            React.createElement("pre", { style:{ background:"#0a0e1a", border:"1px solid #1e2a3a", borderRadius:"8px", padding:"16px", fontSize:"12px", fontFamily:"JetBrains Mono,monospace", color:"#64748b", overflowX:"auto", marginTop:"8px", lineHeight:"1.8", whiteSpace:"pre-wrap" } }, output)
+          ),
+
+          // Share row
+          React.createElement("div", { style:{ ...card, marginTop:"14px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"12px" } },
+            React.createElement("div", null,
+              React.createElement("div", { style:{ fontSize:"13px", color:"#e2e8f0", fontWeight:"600", marginBottom:"4px" } }, "Ship it. Share it. ⚡"),
+              React.createElement("div", { style:{ fontSize:"11px", color:"#475569", fontFamily:"JetBrains Mono,monospace" } }, '"Copy + credit" embeds a backlink in your GitHub Release')
+            ),
+            React.createElement("div", { style:{ display:"flex", gap:"8px" } },
+              React.createElement("a", { href:tweet, target:"_blank", style:{ background:"#0f172a", border:"1px solid #2d3748", borderRadius:"6px", color:"#94a3b8", padding:"8px 13px", fontSize:"12px", fontFamily:"JetBrains Mono,monospace", textDecoration:"none" } }, "𝕏 Share"),
+              React.createElement(CopyBtn, { text:output + credit, label:"Copy + credit 🔗" })
             )
-          )
-        ),
+          ),
 
-        React.createElement("p",{style:{textAlign:"center",marginTop:"24px",fontSize:"11px",color:"#1e2a3a",fontFamily:"JetBrains Mono,monospace"}},
-          "ReleaseNotes.ai · Free forever · ",
-          React.createElement("a",{href:"https://releasenotesai.vercel.app",style:{color:"#334155"}},"releasenotesai.vercel.app")
+          React.createElement("p", { style:{ textAlign:"center", marginTop:"20px", fontSize:"11px", color:"#1e2a3a", fontFamily:"JetBrains Mono,monospace" } }, "Free forever · releasai.vercel.app")
         )
-      ),
-
-      // ── FOOTER ──────────────────────────────────────────────────────────────
-      React.createElement("footer",{style:{marginTop:"80px",borderTop:"1px solid #0f1623",paddingTop:"24px",textAlign:"center"}},
-        React.createElement("p",{style:{fontSize:"11px",color:"#1e2a3a",fontFamily:"JetBrains Mono,monospace",lineHeight:"2"}},"ReleaseNotes.ai · Free AI-powered changelog generator · Built with Groq"),
-        React.createElement("p",{style:{fontSize:"11px",color:"#1e2a3a",fontFamily:"JetBrains Mono,monospace",marginTop:"4px"}},"git commits → GitHub Release Notes · npm CHANGELOG · Customer Updates · Slack Messages")
       )
-    )
-  );
-}
+    );
+  }
 
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+  ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
 </script>
 </body>
 </html>
