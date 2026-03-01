@@ -1,5 +1,5 @@
 const https = require("https");
-const DAILY_LIMIT = 15;
+const DAILY_LIMIT = 20;
 const store = {};
 
 function groqRequest(apiKey, payload) {
@@ -19,7 +19,7 @@ function groqRequest(apiKey, payload) {
       res.on("data", (chunk) => { data += chunk; });
       res.on("end", () => {
         try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
-        catch (e) { reject(new Error("Parse error: " + data.slice(0, 200))); }
+        catch (e) { reject(new Error("Parse error: " + data.slice(0, 300))); }
       });
     });
     req.on("error", reject);
@@ -29,62 +29,51 @@ function groqRequest(apiKey, payload) {
 }
 
 module.exports = async (req, res) => {
-  // Set CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Content-Type", "application/json");
 
-  // Handle preflight OPTIONS request
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
+  if (req.method === "OPTIONS") { res.status(200).end(); return; }
+  if (req.method !== "POST")   { res.status(405).json({ error: "Method not allowed" }); return; }
 
-  // Hanya izinkan POST
-  if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
-    return;
-  }
-
-  // Rate limiting by IP
-  const ip = (req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
+  // Rate limit by IP
+  const ip  = (req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown").split(",")[0].trim();
   const day = new Date().toISOString().slice(0, 10);
-  const rk = ip + "::" + day;
+  const rk  = ip + "::" + day;
   store[rk] = (store[rk] || 0) + 1;
   if (store[rk] > DAILY_LIMIT) {
-    res.status(429).json({ error: "Daily limit reached. Come back tomorrow!" });
+    res.status(429).json({ error: "You've used all " + DAILY_LIMIT + " free generations today. Come back tomorrow! 🙏" });
     return;
   }
 
-  // Parse body
-  let body;
-  try { body = req.body; }  // Vercel sudah otomatis parse JSON
-  catch {
-    res.status(400).json({ error: "Invalid request" });
+  // Body — Vercel auto-parses JSON when Content-Type is application/json
+  const body = req.body;
+  if (!body || !body.model || !body.messages) {
+    res.status(400).json({ error: "Missing model or messages in request" });
     return;
   }
 
-  // Validasi model
   const ALLOWED = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
   if (!ALLOWED.includes(body.model)) {
-    res.status(400).json({ error: "Model not allowed" });
+    res.status(400).json({ error: "Model not allowed: " + body.model });
     return;
   }
 
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: "GROQ_API_KEY not set in Vercel env vars" });
+    res.status(500).json({ error: "Server config error: GROQ_API_KEY is not set. Go to Vercel → Project Settings → Environment Variables and add it, then redeploy." });
     return;
   }
 
   try {
     const result = await groqRequest(apiKey, {
-      model: body.model,
-      messages: body.messages,
-      max_tokens: 1500,
+      model:       body.model,
+      messages:    body.messages,
+      max_tokens:  1800,
       temperature: 0.35,
     });
     if (result.status !== 200) {
-      res.status(result.status).json({ error: result.body?.error?.message || "Groq error" });
+      res.status(result.status).json({ error: result.body?.error?.message || "Groq API error" });
       return;
     }
     res.status(200).json(result.body);
